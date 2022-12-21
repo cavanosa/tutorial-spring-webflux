@@ -2,6 +2,7 @@ package com.tutorial.tutorialweblux.router;
 
 import com.tutorial.tutorialweblux.handler.ProductHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -13,6 +14,11 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 public class ProductRouter {
 
     private static final String PATH = "product";
+
+    @Bean
+    public WebProperties.Resources resources() {
+        return new WebProperties.Resources();
+    }
 
     @Bean
     RouterFunction<ServerResponse> router(ProductHandler handler) {
