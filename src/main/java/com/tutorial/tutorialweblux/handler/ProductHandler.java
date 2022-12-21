@@ -1,7 +1,9 @@
 package com.tutorial.tutorialweblux.handler;
 
+import com.tutorial.tutorialweblux.dto.ProductDto;
 import com.tutorial.tutorialweblux.entity.Product;
 import com.tutorial.tutorialweblux.service.ProductService;
+import com.tutorial.tutorialweblux.validation.ObjectValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -18,6 +20,8 @@ public class ProductHandler {
 
     private final ProductService productService;
 
+    private final ObjectValidator objectValidator;
+
     public Mono<ServerResponse> getAll(ServerRequest request) {
         Flux<Product> products = productService.getAll();
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(products, Product.class);
@@ -30,14 +34,14 @@ public class ProductHandler {
     }
 
     public Mono<ServerResponse> save(ServerRequest request) {
-        Mono<Product> product = request.bodyToMono(Product.class);
-        return product.flatMap(p -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(productService.save(p), Product.class));
+        Mono<ProductDto> dtoMono = request.bodyToMono(ProductDto.class).doOnNext(objectValidator::validate);
+        return dtoMono.flatMap(productDto -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(productService.save(productDto), Product.class));
     }
 
     public Mono<ServerResponse> update(ServerRequest request) {
         int id = Integer.valueOf(request.pathVariable("id"));
-        Mono<Product> product = request.bodyToMono(Product.class);
-        return product.flatMap(p -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(productService.update(id, p), Product.class));
+        Mono<ProductDto> dtoMono = request.bodyToMono(ProductDto.class).doOnNext(objectValidator::validate);
+        return dtoMono.flatMap(productDto -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(productService.update(id, productDto), Product.class));
     }
 
     public Mono<ServerResponse> delete(ServerRequest request) {

@@ -1,5 +1,6 @@
 package com.tutorial.tutorialweblux.service;
 
+import com.tutorial.tutorialweblux.dto.ProductDto;
 import com.tutorial.tutorialweblux.entity.Product;
 import com.tutorial.tutorialweblux.exception.CustomException;
 import com.tutorial.tutorialweblux.repository.ProductRepository;
@@ -29,19 +30,19 @@ public class ProductService {
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.NOT_FOUND, NF_MESSAGE)));
     }
 
-    public Mono<Product> save(Product product) {
-        Mono<Boolean> existsName = productRepository.findByName(product.getName()).hasElement();
+    public Mono<Product> save(ProductDto dto) {
+        Mono<Boolean> existsName = productRepository.findByName(dto.getName()).hasElement();
         return existsName.flatMap(exists -> exists ? Mono.error(new CustomException(HttpStatus.BAD_REQUEST, NAME_MESSAGE))
-                : productRepository.save(product));
+                : productRepository.save(Product.builder().name(dto.getName()).price(dto.getPrice()).build()));
     }
 
-    public Mono<Product> update(int id, Product product) {
+    public Mono<Product> update(int id, ProductDto dto) {
         Mono<Boolean> productId = productRepository.findById(id).hasElement();
-        Mono<Boolean> productRepeatedName = productRepository.repeatedName(id, product.getName()).hasElement();
+        Mono<Boolean> productRepeatedName = productRepository.repeatedName(id, dto.getName()).hasElement();
         return productId.flatMap(
                 existsId -> existsId ?
                         productRepeatedName.flatMap(existsName -> existsName ? Mono.error(new CustomException(HttpStatus.BAD_REQUEST, NAME_MESSAGE))
-                                : productRepository.save(new Product(id, product.getName(), product.getPrice())))
+                                : productRepository.save(new Product(id, dto.getName(), dto.getPrice())))
         : Mono.error(new CustomException(HttpStatus.NOT_FOUND, NF_MESSAGE)));
     }
 
