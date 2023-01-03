@@ -7,6 +7,7 @@ import com.tutorial.tutorialweblux.validation.ObjectValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -33,17 +34,20 @@ public class ProductHandler {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(product, Product.class);
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> save(ServerRequest request) {
         Mono<ProductDto> dtoMono = request.bodyToMono(ProductDto.class).doOnNext(objectValidator::validate);
         return dtoMono.flatMap(productDto -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(productService.save(productDto), Product.class));
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> update(ServerRequest request) {
         int id = Integer.valueOf(request.pathVariable("id"));
         Mono<ProductDto> dtoMono = request.bodyToMono(ProductDto.class).doOnNext(objectValidator::validate);
         return dtoMono.flatMap(productDto -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(productService.update(id, productDto), Product.class));
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> delete(ServerRequest request) {
         int id = Integer.valueOf(request.pathVariable("id"));
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(productService.delete(id), Product.class);
