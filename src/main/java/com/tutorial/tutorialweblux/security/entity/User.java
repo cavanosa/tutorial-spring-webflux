@@ -1,5 +1,6 @@
 package com.tutorial.tutorialweblux.security.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,6 +22,7 @@ public class User implements UserDetails {
     private int id;
     private String username;
     public String email;
+    @JsonIgnore
     private String password;
     private String roles;
 

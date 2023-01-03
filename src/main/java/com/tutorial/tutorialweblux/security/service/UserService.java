@@ -38,7 +38,7 @@ public class UserService {
                 .username(dto.getUsername())
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
-                .roles(Role.ROLE_ADMIN.name() + ", " + Role.ROLE_USER.name())
+                .roles(Role.ROLE_USER.name())
                 .build();
         Mono<Boolean> userExists = userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail()).hasElement();
         return userExists
